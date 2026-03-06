@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rifa Solidaria — Silvio Guerrero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+<script>
+  const FIREBASE_CONFIG = {
+    apiKey:            "AIzaSyB72YOEAEGaK0EJA-bSZdComQXI7Q5tIRQ",
+    authDomain:        "rifa-solidaria-bda94.firebaseapp.com",
+    databaseURL:       "https://rifa-solidaria-bda94-default-rtdb.firebaseio.com",
+    projectId:         "rifa-solidaria-bda94",
+    storageBucket:     "rifa-solidaria-bda94.firebasestorage.app",
+    messagingSenderId: "21631292016",
+    appId:             "1:21631292016:web:737a29f0777d1fef741ab5"
+  };
+</script>
+<style>
+:root {
+  --bg:          #F7F8FC;
+  --surface:     #ffffff;
+  --surface2:    #EEF0F8;
+  --border:      #E2E5F0;
+  --border2:     #C8CCDE;
+  --accent:      #4F46E5;
+  --accent2:     #3730A3;
+  --sold:        #ffffff;
+  --sold-bg:     #EF4444;
+  --sold-text:   #ffffff;
+  --sold-border: #DC2626;
+  --free-text:   #64748B;
+  --text:        #0F172A;
+  --text-muted:  #64748B;
+  --red:         #EF4444;
+  --shadow:      0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:   0 4px 12px rgba(0,0,0,.10),0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg:   0 10px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.06);
+  --accent-light: #EEF2FF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text); min-height: 100vh;
+}
+
+/* LOADING */
+#connecting {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, #3730A3, #4F46E5);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 999; gap: 20px;
+}
+.spinner {
+  width: 52px; height: 52px; border: 4px solid rgba(255,255,255,.25);
+  border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#connecting p { color: rgba(255,255,255,.80); font-size: 15px; font-weight: 500; }
+#connecting.hidden { display: none; }
+
+/* CONFIG ERROR */
+#config-error { display: none; position: fixed; inset: 0; background: var(--bg); align-items: center; justify-content: center; z-index: 999; padding: 24px; }
+#config-error.show { display: flex; }
+.error-box { background: var(--surface); border: 1px solid #fecaca; border-radius: 16px; padding: 28px; max-width: 480px; width: 100%; }
+.error-box h2 { color: var(--red); font-size: 18px; margin-bottom: 10px; }
+.error-box p  { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(150deg, #1E1B4B 0%, #1A4F8A 50%, #1565C0 100%);
+  padding: 32px 20px 28px; position: relative; overflow: hidden;
+}
+.hero::before {
+  content:''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(255,255,255,.06) 0%, transparent 55%);
+}
+.hero::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, #A5B4FC, #818CF8, #A5B4FC, transparent);
+}
+.hero-inner { position: relative; max-width: 640px; margin: 0 auto; }
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.hero-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+  color: #A5B4FC; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+}
+.hero-eyebrow::after { content: ''; flex: 1; height: 1px; background: rgba(255,213,79,.3); }
+.hero-title {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(20px,4.5vw,30px); font-weight: 900;
+  color: #ffffff; line-height: 1.25; flex: 1;
+}
+.hero-title span { color: #A5B4FC; }
+.hero-sub {
+  font-size: 12px; color: rgba(255,255,255,.65);
+  margin-top: 8px; display: flex; align-items: center; gap: 6px;
+}
+.live-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; animation: blink 1.5s ease infinite; flex-shrink: 0; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+
+.hero-stats { display: flex; gap: 10px; margin-top: 20px; }
+.hstat {
+  flex: 1; background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 14px; padding: 12px 12px; text-align: center; backdrop-filter: blur(4px);
+}
+.hstat-val { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 28px; font-weight: 900; color: #ffffff; line-height: 1; }
+.hstat-val.green { color: #6EE7B7; }
+.hstat-val.muted { color: rgba(255,255,255,.45); }
+.hstat-label { font-size: 10px; color: rgba(255,255,255,.55); margin-top: 4px; text-transform: uppercase; letter-spacing: .8px; }
+
+.progress-track { background: rgba(255,255,255,.15); border-radius: 99px; height: 8px; overflow: hidden; margin-top: 16px; }
+.progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #A5B4FC, #6EE7B7); transition: width .5s cubic-bezier(.4,0,.2,1); width: 0%; }
+.progress-label { font-size: 11px; color: rgba(255,255,255,.50); margin-top: 6px; text-align: right; }
+
+/* DATE BANNER */
+.date-banner {
+  background: #4F46E5;
+  color: #fff; text-align: center; padding: 11px 20px;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.3px;
+}
+.date-banner strong { color: #C7D2FE; }
+
+/* PRIZES */
+.prizes-wrap {
+  max-width: 680px; margin: 0 auto; padding: 20px 16px 4px;
+}
+.prizes-heading {
+  text-align: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 18px; color: var(--text); margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.prizes-heading::before, .prizes-heading::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.prizes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:500px){ .prizes-grid { grid-template-columns: 1fr; } }
+.prize-card {
+  border-radius: 16px; padding: 18px 16px; position: relative; overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.prize-card.gold {
+  background: #FAFAFA;
+  border: 2px solid #4F46E5;
+}
+.prize-card.silver {
+  background: #FAFAFA;
+  border: 2px solid #9CA3AF;
+}
+.prize-tag {
+  font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 99px; display: inline-block; margin-bottom: 10px;
+}
+.gold .prize-tag { background: #4F46E5; color: #fff; }
+.silver .prize-tag { background: #64748B; color: #fff; }
+.prize-icon { font-size: 30px; display: block; margin-bottom: 8px; }
+.prize-name {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; font-weight: 700;
+  color: var(--text); line-height: 1.35;
+}
+.prize-detail { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+
+/* PRICING */
+.pricing-wrap {
+  max-width: 680px; margin: 0 auto; padding: 4px 16px 16px;
+}
+.pricing-heading {
+  text-align: center; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 10px;
+}
+.pricing-heading::before, .pricing-heading::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+@media(max-width:480px){ .pricing-grid { grid-template-columns: 1fr; gap: 6px; } }
+.price-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 14px; padding: 14px 12px; text-align: center;
+  box-shadow: var(--shadow); position: relative; transition: border-color .2s;
+}
+.price-card.best {
+  border-color: #4F46E5;
+  background: #EEF2FF;
+}
+.price-best-label {
+  display: none; position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+  background: #4F46E5; color: #fff; font-size: 10px; font-weight: 800;
+  letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 10px; border-radius: 99px;
+  white-space: nowrap;
+}
+.price-card.best .price-best-label { display: block; }
+.price-qty {
+  font-size: 12px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.price-amount {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 22px; font-weight: 700;
+  color: var(--text); line-height: 1;
+}
+.price-card.best .price-amount { color: #4F46E5; }
+.price-unit { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.controls-wrap {
+  background: rgba(255,255,255,.95); border-bottom: 1px solid var(--border);
+  padding: 12px 16px; position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07); backdrop-filter: blur(8px);
+}
+.controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.search-box {
+  flex: 1; min-width: 140px; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 9px 14px; color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; outline: none; transition: border-color .2s;
+}
+.search-box:focus { border-color: var(--accent); }
+.search-box::placeholder { color: var(--free-text); }
+.filter-btn {
+  background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 9px 14px; color: var(--text-muted); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+/* LEGEND */
+.legend { padding: 10px 16px 4px; display: none; flex-wrap: wrap; gap: 6px; max-width: 640px; margin: 0 auto; }
+.legend.show { display: flex; }
+.legend-item {
+  display: flex; align-items: center; gap: 6px; background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: 99px; padding: 5px 12px;
+  font-size: 12px; color: var(--text-muted); font-weight: 500;
+}
+.legend-btn { cursor: pointer; transition: all .2s; }
+.legend-btn:hover { border-color: var(--accent); color: var(--accent); }
+.legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+/* Seller summary panel */
+.seller-panel {
+  max-width: 680px; margin: 8px auto 0; padding: 0 16px;
+}
+.seller-panel-header {
+  background: var(--surface); border: 1.5px solid var(--border2);
+  border-radius: 14px; padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  box-shadow: var(--shadow-md);
+}
+.seller-panel-name {
+  font-size: 15px; font-weight: 700; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.seller-panel-name::before {
+  content: ''; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--seller-color, var(--accent)); flex-shrink: 0;
+}
+.seller-panel-stats {
+  display: flex; align-items: center; gap: 10px;
+}
+.sp-stat { text-align: center; min-width: 52px; }
+.sp-val {
+  display: block; font-size: 20px; font-weight: 800; line-height: 1; color: var(--text);
+}
+.sp-label {
+  display: block; font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); margin-top: 2px;
+}
+.sp-stat-pagado .sp-val   { color: #10B981; }
+.sp-stat-pendiente .sp-val { color: #F59E0B; }
+.sp-divider { width: 1px; height: 32px; background: var(--border); }
+.sp-btn {
+  background: #FFFBEB; border: 1.5px solid #FCD34D;
+  border-radius: 10px; padding: 6px 10px;
+  cursor: pointer; transition: all .18s;
+}
+.sp-btn:hover { background: #FEF3C7; border-color: #F59E0B; }
+.sp-btn.open  { background: #FEF3C7; border-color: #F59E0B; }
+.sp-list {
+  background: var(--surface); border: 1.5px solid #FCD34D;
+  border-top: none; border-radius: 0 0 14px 14px;
+  padding: 12px 14px; margin-top: -4px;
+  animation: slideDown .2s ease;
+}
+@keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.sp-list-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: #92400E; margin-bottom: 10px;
+}
+.sp-list-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 9px; margin-bottom: 5px;
+  background: var(--surface2); border: 1px solid var(--border);
+}
+.sp-list-item:last-child { margin-bottom: 0; }
+.sp-num {
+  font-size: 17px; font-weight: 800; color: var(--text); min-width: 34px;
+}
+.sp-nombre { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+.sp-pendiente-badge {
+  background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E;
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+}
+
+/* Payment legend */
+.pay-legend {
+  padding: 6px 16px 4px; display: flex; gap: 8px; max-width: 680px; margin: 0 auto;
+}
+.pay-legend-btn {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: var(--text-muted);
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 99px; padding: 5px 13px; cursor: pointer;
+  transition: all .18s; font-family: 'Inter', sans-serif;
+}
+.pay-legend-btn:hover { border-color: var(--border2); color: var(--text); }
+.pay-legend-btn.active-pagado    { background: #ECFDF5; border-color: #10B981; color: #065F46; }
+.pay-legend-btn.active-pendiente { background: #FFFBEB; border-color: #F59E0B; color: #92400E; }
+.grid-wrap { padding: 16px; max-width: 680px; margin: 0 auto; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(56px,1fr)); gap: 7px; }
+.ticket {
+  aspect-ratio: 1; border-radius: 12px; border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--free-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s ease; position: relative; user-select: none;
+  box-shadow: var(--shadow);
+}
+.ticket:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.07); box-shadow: var(--shadow-md); z-index: 2; }
+.ticket.sold {
+  background: #EF4444;
+  border-color: #DC2626;
+  color: #ffffff;
+  cursor: default;
+}
+.ticket.sold:hover { transform: none; box-shadow: var(--shadow); border-color: #DC2626; color: #fff; }
+.ticket.sold::after { content: '✓'; position: absolute; top: 3px; right: 5px; font-size: 9px; color: rgba(255,255,255,.7); font-weight: 700; }
+.ticket .seller-dot { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; }
+/* Admin: seller color override */
+.ticket.sold.seller-colored { color: #fff; border-color: transparent; }
+/* Payment status icon */
+.ticket .pay-icon {
+  position: absolute; bottom: 3px; right: 4px;
+  font-size: 10px; line-height: 1; pointer-events: none;
+}
+.ticket.hidden { display: none; }
+.empty { text-align: center; padding: 48px 20px; color: var(--text-muted); display: none; font-size: 14px; }
+.empty.show { display: block; }
+
+/* MODAL */
+.modal-bg {
+  display: none; position: fixed; inset: 0; background: rgba(15,23,42,.5);
+  z-index: 200; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(8px);
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 22px; width: 100%; max-width: 400px; padding: 28px;
+  box-shadow: var(--shadow-lg); animation: slideUp .25s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes slideUp { from{transform:translateY(24px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+.modal-num-wrap { text-align: center; margin-bottom: 4px; }
+.modal-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 80px; height: 80px; border-radius: 20px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 34px; font-weight: 700;
+  background: #EEF2FF; color: var(--accent); border: 2px solid #A5B4FC;
+}
+.modal-num.sold-style { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+.modal-subtitle {
+  text-align: center; font-size: 12px; font-weight: 600; color: var(--text-muted);
+  margin-top: 8px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1.2px;
+}
+
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 5px; }
+.field input, .field select {
+  width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 10px 14px; color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; outline: none; transition: border-color .2s; appearance: none;
+}
+.field input:focus, .field select:focus { border-color: var(--accent); }
+
+.modal-sold-info { background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: 14px; padding: 14px; margin-bottom: 4px; }
+.info-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,.05); }
+.info-row:last-child { border: none; padding-bottom: 0; }
+.info-label { color: var(--text-muted); font-size: 12px; font-weight: 500; }
+.info-val { color: var(--text); font-weight: 600; font-size: 14px; }
+
+.pago-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.pago-pagado   { background: #ECFDF5; color: #065F46; border: 1px solid #6EE7B7; }
+.pago-pendiente { background: #FFFBEB; color: #92400E; border: 1px solid #FCD34D; }
+
+.modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+.btn { flex: 1; padding: 12px; border-radius: 11px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .2s; }
+.btn-cancel { background: var(--surface2); color: var(--text-muted); border: 1.5px solid var(--border); }
+.btn-cancel:hover { color: var(--text); border-color: var(--border2); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 2px 8px rgba(79,70,229,.35); }
+.btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn-danger { background: #fef2f2; color: var(--red); border: 1.5px solid #fecaca; flex: 0 0 auto; padding: 12px 14px; }
+.btn-danger:hover { background: #fee2e2; }
+.btn-edit { background: #EEF2FF; color: #3730A3; border: 1.5px solid #A5B4FC; font-size: 13px; }
+.btn-edit:hover { background: #E0E7FF; }
+.btn-wa {
+  flex: 1; padding: 12px; border-radius: 11px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .2s;
+  background: #25d366; color: #fff;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  text-decoration: none; box-shadow: 0 2px 8px rgba(37,211,102,.3);
+}
+.btn-wa:hover { background: #1ebe5d; transform: translateY(-1px); }
+
+/* LOGIN */
+#login-modal-bg { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.6); z-index: 500; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(8px); }
+#login-modal-bg.open { display: flex; }
+.login-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 22px; width: 100%; max-width: 340px; padding: 32px; box-shadow: var(--shadow-lg); animation: slideUp .25s ease; text-align: center; }
+.login-icon { font-size: 44px; margin-bottom: 10px; }
+.login-title { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.login-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
+.login-input { width: 100%; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 16px; outline: none; text-align: center; letter-spacing: 3px; transition: border-color .2s; margin-bottom: 12px; }
+.login-input:focus { border-color: var(--accent); }
+.login-input.error { border-color: var(--red); animation: shake .3s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.login-btn { width: 100%; padding: 13px; border-radius: 11px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: opacity .2s; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(79,70,229,.35); }
+.login-btn:hover { opacity: .9; }
+.login-cancel { background: none; border: none; color: var(--text-muted); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 13px; cursor: pointer; }
+.login-cancel:hover { color: var(--text); }
+.login-error { color: var(--red); font-size: 13px; margin-bottom: 10px; display: none; }
+.login-error.show { display: block; }
+
+
+/* BOTTOM BAR */
+.bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(255,255,255,.92); backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(15,23,42,.08);
+}
+.bottom-bar-inner {
+  max-width: 680px; margin: 0 auto;
+}
+.bb-admin-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 13px 20px; border-radius: 14px; border: none; cursor: pointer;
+  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700;
+  background: var(--surface2); color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  transition: all .2s;
+}
+.bb-admin-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.bb-admin-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; border-color: transparent;
+  box-shadow: 0 4px 16px rgba(79,70,229,.35);
+}
+.bb-icon { font-size: 18px; line-height: 1; }
+.bb-label { letter-spacing: .2px; }
+
+/* espacio al pie para que el contenido no quede tapado por la barra */
+body { padding-bottom: 80px; }
+
+/* EXPORT */
+.export-btn {
+  position: fixed; bottom: 20px; right: 20px; background: var(--surface);
+  border: 1.5px solid var(--border); color: var(--text-muted);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; font-size: 13px;
+  padding: 11px 18px; border-radius: 99px; cursor: pointer;
+  box-shadow: var(--shadow-md); z-index: 50; transition: all .2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.export-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%) translateY(14px);
+  background: #0F172A; color: #fff; padding: 10px 20px; border-radius: 99px;
+  font-size: 13px; font-weight: 600; opacity: 0; transition: all .3s;
+  pointer-events: none; z-index: 300; white-space: nowrap; box-shadow: var(--shadow-lg);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 400px) {
+  .grid { grid-template-columns: repeat(auto-fill,minmax(50px,1fr)); gap: 5px; }
+  .ticket { font-size: 13px; }
+  .hero-title { font-size: 17px; }
+  .hstat-val { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<div id="connecting"><div class="spinner"></div><p>Conectando...</p></div>
+
+<div id="config-error">
+  <div class="error-box">
+    <h2>⚠️ Firebase no configurado</h2>
+    <p>Reemplazá los valores de FIREBASE_CONFIG con los datos de tu proyecto.</p>
+  </div>
+</div>
+
+<div id="login-modal-bg">
+  <div class="login-box">
+    <div class="login-icon">🔐</div>
+    <div class="login-title">Acceso Admin</div>
+    <div class="login-sub">Ingresá la contraseña para gestionar la rifa</div>
+    <div class="login-error" id="login-error">Contraseña incorrecta</div>
+    <input class="login-input" id="login-pass" type="password" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Ingresar</button>
+    <button class="login-cancel" onclick="closeLogin()">Cancelar</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <div style="flex:1">
+        <div class="hero-eyebrow">🎟️ Rifa Solidaria</div>
+        <div class="hero-title">A beneficio de <span>Silvio Guerrero</span><br>para solventar gastos médicos</div>
+        <div class="hero-sub"><div class="live-dot"></div>Actualizando en tiempo real</div>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val" id="stat-total">200</div><div class="hstat-label">Total</div></div>
+      <div class="hstat"><div class="hstat-val green" id="stat-sold">0</div><div class="hstat-label">Vendidos</div></div>
+      <div class="hstat"><div class="hstat-val muted" id="stat-free">200</div><div class="hstat-label">Disponibles</div></div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-bar"></div></div>
+    <div class="progress-label" id="progress-label">0% vendido</div>
+  </div>
+</div>
+
+<div class="date-banner">
+  📅 Sorteo: <strong>Sábado 21 de marzo</strong> — o cuando se vendan todos los números, lo que ocurra primero
+</div>
+
+<div class="prizes-wrap">
+  <div class="prizes-heading">🏆 Premios</div>
+  <div class="prizes-grid">
+    <div class="prize-card gold">
+      <span class="prize-tag">1er Premio</span>
+      <span class="prize-icon">🥩</span>
+      <div class="prize-name">Pernil completo</div>
+      <div class="prize-detail">+ guarnición + pancitos</div>
+    </div>
+    <div class="prize-card silver">
+      <span class="prize-tag">2do Premio</span>
+      <span class="prize-icon">🍖</span>
+      <div class="prize-name">Cabeza guateada</div>
+      <div class="prize-detail">+ guarnición + pancitos</div>
+    </div>
+  </div>
+</div>
+
+<div class="pricing-wrap">
+  <div class="pricing-heading">💰 Precio por número</div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-qty">1 número</div>
+      <div class="price-amount">$3.000</div>
+      <div class="price-unit">por unidad</div>
+    </div>
+    <div class="price-card">
+      <div class="price-qty">2 números</div>
+      <div class="price-amount">$2.500</div>
+      <div class="price-unit">por unidad</div>
+    </div>
+    <div class="price-card best">
+      <div class="price-best-label">⭐ Mejor precio</div>
+      <div class="price-qty">3 o más</div>
+      <div class="price-amount">$2.000</div>
+      <div class="price-unit">por unidad</div>
+    </div>
+  </div>
+</div>
+
+<div class="controls-wrap">
+  <div class="controls">
+    <input class="search-box" id="search" placeholder="🔍  Buscar número o nombre..." oninput="applyFilters()">
+    <button class="filter-btn active" onclick="setFilter('all',this)">Todos</button>
+    <button class="filter-btn" onclick="setFilter('free',this)">Libres</button>
+    <button class="filter-btn" onclick="setFilter('sold',this)">Vendidos</button>
+  </div>
+</div>
+
+<div class="legend" id="seller-legend"></div>
+<div class="pay-legend" id="pay-legend" style="display:none">
+  <button class="pay-legend-btn" id="pf-pagado"    onclick="setPayFilter('pagado')"   >✅ Pagado</button>
+  <button class="pay-legend-btn" id="pf-pendiente" onclick="setPayFilter('pendiente')">⚠️ Pendiente</button>
+</div>
+
+<!-- Panel resumen vendedor (solo admin) -->
+<div class="seller-panel" id="seller-panel" style="display:none">
+  <div class="seller-panel-header">
+    <div class="seller-panel-name" id="sp-name"></div>
+    <div class="seller-panel-stats">
+      <div class="sp-stat">
+        <span class="sp-val" id="sp-total">0</span>
+        <span class="sp-label">Vendidos</span>
+      </div>
+      <div class="sp-divider"></div>
+      <div class="sp-stat sp-stat-pagado">
+        <span class="sp-val" id="sp-pagado">0</span>
+        <span class="sp-label">Pagados</span>
+      </div>
+      <div class="sp-divider"></div>
+      <button class="sp-stat sp-stat-pendiente sp-btn" id="sp-pendiente-btn" onclick="togglePendienteList()">
+        <span class="sp-val" id="sp-pendiente">0</span>
+        <span class="sp-label">Pendientes ▾</span>
+      </button>
+    </div>
+  </div>
+  <!-- Lista de pendientes desplegable -->
+  <div class="sp-list" id="sp-list" style="display:none">
+    <div class="sp-list-title">⚠️ Números sin pagar</div>
+    <div id="sp-list-items"></div>
+  </div>
+</div>
+
+<div class="grid-wrap">
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty"><div style="font-size:36px;margin-bottom:10px">🔍</div>No se encontraron resultados</div>
+</div>
+
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-num-wrap"><div class="modal-num" id="modal-num">00</div></div>
+    <div class="modal-subtitle" id="modal-subtitle">disponible</div>
+
+    <div id="form-area" style="display:none">
+      <div class="field"><label>Nombre del comprador *</label><input id="f-nombre" type="text" placeholder="Ej: María García" autocomplete="off"></div>
+      <div class="field"><label>Vendedor</label><input id="f-vendedor" type="text" placeholder="Ej: Juan" autocomplete="off"></div>
+      <div class="field"><label>Estado de pago</label>
+        <select id="f-pago">
+          <option value="pendiente">⏳ Pendiente</option>
+          <option value="pagado">✅ Pagado</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="info-area" class="modal-sold-info" style="display:none">
+      <div class="info-row"><span class="info-label">👤 Comprador</span><span class="info-val" id="info-nombre"></span></div>
+      <div class="info-row"><span class="info-label">🧑‍💼 Vendedor</span><span class="info-val" id="info-vendedor"></span></div>
+      <div class="info-row"><span class="info-label">🕐 Fecha</span><span class="info-val" id="info-fecha"></span></div>
+      <div class="info-row"><span class="info-label">💳 Pago</span><span id="info-pago-wrap"></span></div>
+    </div>
+
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<button class="export-btn" onclick="exportCSV()">📋 Exportar</button>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  if (FIREBASE_CONFIG.apiKey === "TU_API_KEY") {
+    document.getElementById('connecting').classList.add('hidden');
+    document.getElementById('config-error').classList.add('show');
+    throw new Error("Firebase no configurado");
+  }
+
+  const app     = initializeApp(FIREBASE_CONFIG);
+  const db      = getDatabase(app);
+  const rifaRef = ref(db, 'rifa');
+
+  const ADMIN_PASSWORD = 'chiwita';
+  let isAdmin       = false;
+  let data          = {};
+  let currentFilter = 'all';
+  let currentSeller = null;
+  let currentPago   = null;
+
+  // COLORES VENDEDORES
+  const SELLER_COLORS = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#f97316','#14b8a6','#a855f7','#3b82f6','#22c55e','#e11d48','#0ea5e9'];
+  const sellerColorMap = {};
+  function getSellerColor(name) {
+    if (!name) return '#94a3b8';
+    const key = name.trim().toLowerCase();
+    if (!sellerColorMap[key]) sellerColorMap[key] = SELLER_COLORS[Object.keys(sellerColorMap).length % SELLER_COLORS.length];
+    return sellerColorMap[key];
+  }
+
+
+  function pagoChip(pago) {
+    if (pago === 'pagado') return '<span class="pago-chip pago-pagado">✅ Pagado</span>';
+    return '<span class="pago-chip pago-pendiente">⏳ Pendiente</span>';
+  }
+
+  // LEGEND
+  function updateLegend() {
+    const legend = document.getElementById('seller-legend');
+    if (!isAdmin) { legend.classList.remove('show'); currentSeller = null; return; }
+    const sellers = {};
+    Object.values(data).forEach(d => { if (d.vendedor) sellers[d.vendedor.trim().toLowerCase()] = d.vendedor.trim(); });
+    if (!Object.keys(sellers).length) { legend.classList.remove('show'); return; }
+    const allA = currentSeller === null ? 'style="border-color:var(--accent);color:var(--accent);background:#eef2ff"' : '';
+    let html = `<div class="legend-item legend-btn" ${allA} onclick="setSeller(null)">Todos</div>`;
+    html += Object.entries(sellers).map(([key, name]) => {
+      const c = getSellerColor(name);
+      const a = currentSeller === key ? `style="border-color:${c};color:${c};background:${c}18"` : '';
+      return `<div class="legend-item legend-btn" ${a} onclick="setSeller('${key}')"><div class="legend-dot" style="background:${c}"></div>${name}</div>`;
+    }).join('');
+    legend.innerHTML = html;
+    legend.classList.add('show');
+  }
+  function setSeller(key) {
+    currentSeller = key;
+    updateLegend();
+    applyFilters();
+    updateSellerPanel(key);
+  }
+  window.setSeller = setSeller;
+
+  function updateSellerPanel(key) {
+    const panel = document.getElementById('seller-panel');
+    if (!key || !isAdmin) { panel.style.display = 'none'; return; }
+
+    // Reunir números de este vendedor
+    const myNums = Object.entries(data).filter(([, d]) =>
+      d.vendedor && d.vendedor.trim().toLowerCase() === key
+    );
+    const total     = myNums.length;
+    const pagados   = myNums.filter(([, d]) => d.pago === 'pagado').length;
+    const pendientes = myNums.filter(([, d]) => d.pago !== 'pagado');
+
+    // Nombre real y color
+    const nombre = myNums.length ? myNums[0][1].vendedor.trim() : key;
+    const color  = getSellerColor(nombre);
+
+    document.getElementById('sp-name').textContent = nombre;
+    document.getElementById('sp-name').parentElement.style.setProperty('--seller-color', color);
+    document.getElementById('sp-total').textContent     = total;
+    document.getElementById('sp-pagado').textContent    = pagados;
+    document.getElementById('sp-pendiente').textContent = pendientes.length;
+
+    const btn = document.getElementById('sp-pendiente-btn');
+    btn.classList.remove('open');
+    // Ocultar lista al cambiar vendedor
+    const list = document.getElementById('sp-list');
+    list.style.display = 'none';
+
+    // Construir lista de pendientes
+    const items = document.getElementById('sp-list-items');
+    if (pendientes.length === 0) {
+      items.innerHTML = '<div style="text-align:center;padding:10px;color:var(--text-muted);font-size:13px;">✅ Todos pagaron</div>';
+    } else {
+      items.innerHTML = pendientes
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([num, d]) => `
+          <div class="sp-list-item">
+            <span class="sp-num">${num}</span>
+            <span class="sp-nombre">${d.nombre || '—'}</span>
+            <span class="sp-pendiente-badge">⏳ Pendiente</span>
+          </div>`).join('');
+    }
+
+    panel.style.display = 'block';
+  }
+
+  function togglePendienteList() {
+    const list = document.getElementById('sp-list');
+    const btn  = document.getElementById('sp-pendiente-btn');
+    const open = list.style.display === 'none';
+    list.style.display = open ? 'block' : 'none';
+    btn.classList.toggle('open', open);
+    // Cambiar la flecha
+    const lbl = btn.querySelector('.sp-label');
+    lbl.textContent = open ? 'Pendientes ▴' : 'Pendientes ▾';
+  }
+  window.togglePendienteList = togglePendienteList;
+
+  // ADMIN
+  function toggleAdmin() {
+    if (isAdmin) {
+      isAdmin = false;
+      document.getElementById('admin-btn-label').textContent = 'Entrar';
+      document.getElementById('admin-btn').classList.remove('active');
+      document.getElementById('pay-legend').style.display = 'none';
+      document.getElementById('seller-panel').style.display = 'none';
+      currentPago = null;
+      renderGrid(); updateLegend();
+      showToast('🔒 Sesión cerrada');
+    } else {
+      document.getElementById('login-modal-bg').classList.add('open');
+      document.getElementById('login-pass').value = '';
+      document.getElementById('login-error').classList.remove('show');
+      setTimeout(() => document.getElementById('login-pass').focus(), 100);
+    }
+  }
+  window.toggleAdmin = toggleAdmin;
+
+  function doLogin() {
+    if (document.getElementById('login-pass').value === ADMIN_PASSWORD) {
+      isAdmin = true;
+      document.getElementById('login-modal-bg').classList.remove('open');
+      document.getElementById('admin-btn-label').textContent = '✓ Admin activo — toca para salir';
+      document.getElementById('bb-icon').textContent = '✅';
+      document.getElementById('admin-btn').classList.add('active');
+      document.getElementById('pay-legend').style.display = 'flex';
+      renderGrid(); updateLegend();
+      showToast('🔓 Modo administrador activado');
+    } else {
+      const inp = document.getElementById('login-pass');
+      inp.classList.add('error');
+      document.getElementById('login-error').classList.add('show');
+      setTimeout(() => inp.classList.remove('error'), 400);
+      inp.value = ''; inp.focus();
+    }
+  }
+  window.doLogin = doLogin;
+
+  function closeLogin() { document.getElementById('login-modal-bg').classList.remove('open'); }
+  window.closeLogin = closeLogin;
+
+  // FIREBASE
+  onValue(rifaRef, (snapshot) => {
+    data = snapshot.val() || {};
+    document.getElementById('connecting').classList.add('hidden');
+    renderGrid(); updateLegend();
+  });
+
+  // RENDER
+  function renderGrid() {
+    const grid = document.getElementById('grid');
+    for (let i = 0; i < 200; i++) {
+      const num  = String(i).padStart(2,'0');
+      const sold = !!data[num];
+      let el = document.querySelector(`.ticket[data-num="${num}"]`);
+      if (!el) {
+        el = document.createElement('div');
+        el.className = 'ticket'; el.dataset.num = num;
+        el.addEventListener('click', () => openModal(num));
+        grid.appendChild(el);
+      }
+      el.textContent = num;
+      el.classList.toggle('sold', sold);
+      // Limpiar elementos dinámicos anteriores
+      el.querySelector('.seller-dot')?.remove();
+      el.querySelector('.pay-icon')?.remove();
+      el.classList.remove('seller-colored');
+      el.style.background = '';
+      el.style.borderColor = '';
+
+      if (isAdmin && sold) {
+        const d = data[num];
+        // Color del vendedor como fondo del ticket
+        if (d?.vendedor) {
+          const color = getSellerColor(d.vendedor);
+          el.style.background = color;
+          el.style.borderColor = color;
+          el.classList.add('seller-colored');
+        }
+        // Ícono de pago en la esquina inferior derecha
+        const icon = document.createElement('span');
+        icon.className = 'pay-icon';
+        icon.textContent = d?.pago === 'pagado' ? '✅' : '⚠️';
+        el.appendChild(icon);
+      }
+    }
+    updateStats(); applyFilters();
+  }
+
+  function updateStats() {
+    const sold = Object.keys(data).length;
+    const pct  = Math.round(sold / 200 * 100);
+    document.getElementById('stat-sold').textContent    = sold;
+    document.getElementById('stat-free').textContent    = 200 - sold;
+    document.getElementById('progress-bar').style.width = pct + '%';
+    document.getElementById('progress-label').textContent = pct + '% vendido';
+  }
+
+  function applyFilters() {
+    const q = document.getElementById('search').value.trim().toLowerCase();
+    let visible = 0;
+    document.querySelectorAll('.ticket').forEach(el => {
+      const num      = el.dataset.num;
+      const sold     = !!data[num];
+      const name     = (data[num]?.nombre   || '').toLowerCase();
+      const vendedor = (data[num]?.vendedor || '').toLowerCase();
+      const pago     = data[num]?.pago || 'pendiente';
+      const mF = currentFilter==='all' || (currentFilter==='sold'&&sold) || (currentFilter==='free'&&!sold);
+      const mS = !q || num.includes(q) || name.includes(q) || vendedor.includes(q);
+      const mV = !currentSeller || vendedor === currentSeller;
+      const mP = !currentPago || (sold && pago === currentPago);
+      el.classList.toggle('hidden', !(mF && mS && mV && mP));
+      if (mF && mS && mV && mP) visible++;
+    });
+    document.getElementById('empty').classList.toggle('show', visible === 0);
+  }
+
+  function setPayFilter(pago) {
+    currentPago = currentPago === pago ? null : pago;
+    ['pagado','pendiente'].forEach(p => {
+      document.getElementById('pf-' + p).classList.remove('active-pagado','active-pendiente');
+    });
+    if (currentPago) {
+      document.getElementById('pf-' + currentPago).classList.add('active-' + currentPago);
+    }
+    applyFilters();
+  }
+  window.setPayFilter = setPayFilter;
+
+  function setFilter(f, btn) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); applyFilters();
+  }
+  window.setFilter = setFilter;
+
+  // MODAL
+  function openModal(num) {
+    const sold  = !!data[num];
+    const numEl = document.getElementById('modal-num');
+    numEl.textContent = num;
+    numEl.className   = 'modal-num' + (sold ? ' sold-style' : '');
+    document.getElementById('modal-bg').classList.add('open');
+    const formArea = document.getElementById('form-area');
+    const infoArea = document.getElementById('info-area');
+    const actions  = document.getElementById('modal-actions');
+
+    if (sold) {
+      formArea.style.display = 'none';
+      if (isAdmin) {
+        const d = data[num];
+        infoArea.style.display = 'block';
+        document.getElementById('modal-subtitle').textContent  = 'número vendido';
+        document.getElementById('info-nombre').textContent     = d.nombre   || '—';
+        document.getElementById('info-vendedor').textContent   = d.vendedor || '—';
+        document.getElementById('info-fecha').textContent      = d.fecha    || '—';
+        document.getElementById('info-pago-wrap').innerHTML    = pagoChip(d.pago);
+        actions.innerHTML = `
+          <button class="btn btn-cancel" onclick="closeModal()">Cerrar</button>
+          <button class="btn btn-edit" onclick="editModal('${num}')">✏️ Editar</button>
+          <button class="btn btn-danger" onclick="unsell('${num}')">🗑</button>`;
+      } else {
+        infoArea.style.display = 'none';
+        document.getElementById('modal-subtitle').textContent = 'este número ya fue vendido';
+        actions.innerHTML = `<button class="btn btn-cancel" style="flex:1" onclick="closeModal()">Cerrar</button>`;
+      }
+    } else {
+      infoArea.style.display = 'none';
+      if (isAdmin) {
+        document.getElementById('modal-subtitle').textContent = 'número disponible';
+        formArea.style.display = 'block';
+        ['f-nombre','f-vendedor'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('f-pago').value = 'pendiente';
+        setTimeout(() => document.getElementById('f-nombre').focus(), 100);
+        actions.innerHTML = `
+          <button class="btn btn-cancel" onclick="closeModal()">Cancelar</button>
+          <button class="btn btn-primary" id="btn-sell-ok" onclick="sell('${num}')">Marcar vendido ✓</button>`;
+      } else {
+        formArea.style.display = 'none';
+        document.getElementById('modal-subtitle').textContent = '¡número disponible!';
+        const msg   = encodeURIComponent(`Hola! Quiero comprar el número *${num}* de la rifa 🎟️`);
+        const waUrl = `https://wa.me/543873632189?text=${msg}`;
+        actions.innerHTML = `
+          <button class="btn btn-cancel" onclick="closeModal()">Cerrar</button>
+          <a href="${waUrl}" target="_blank" class="btn-wa" onclick="closeModal()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Quiero comprar este número
+          </a>`;
+      }
+    }
+  }
+  window.openModal = openModal;
+
+  function editModal(num) {
+    const d = data[num];
+    document.getElementById('modal-subtitle').textContent  = 'editando número';
+    document.getElementById('info-area').style.display     = 'none';
+    document.getElementById('form-area').style.display     = 'block';
+    document.getElementById('f-nombre').value   = d.nombre   || '';
+    document.getElementById('f-vendedor').value = d.vendedor || '';
+    document.getElementById('f-pago').value     = d.pago     || 'pendiente';
+    document.getElementById('modal-actions').innerHTML = `
+      <button class="btn btn-cancel" onclick="openModal('${num}')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-sell-ok" onclick="sell('${num}')">Guardar ✓</button>`;
+  }
+  window.editModal = editModal;
+
+  function closeModal(e) {
+    if (!e || e.target.id === 'modal-bg') document.getElementById('modal-bg').classList.remove('open');
+  }
+  window.closeModal = closeModal;
+
+  async function sell(num) {
+    if (!isAdmin) return;
+    const nombre = document.getElementById('f-nombre').value.trim();
+    if (!nombre) {
+      const inp = document.getElementById('f-nombre');
+      inp.focus(); inp.style.borderColor = 'var(--red)';
+      setTimeout(() => inp.style.borderColor = '', 1200); return;
+    }
+    const btn = document.getElementById('btn-sell-ok');
+    if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
+    const vendedor = document.getElementById('f-vendedor').value.trim();
+    const pago     = document.getElementById('f-pago').value;
+    const fecha    = data[num]?.fecha || new Date().toLocaleString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    await set(ref(db, `rifa/${num}`), { nombre, vendedor, pago, fecha });
+    closeModal();
+    showToast(`✅ Número ${num} guardado`);
+    if (currentSeller) updateSellerPanel(currentSeller);
+  }
+  window.sell = sell;
+
+  async function unsell(num) {
+    if (!isAdmin) return;
+    if (!confirm(`¿Liberar el número ${num}? Se borrarán los datos.`)) return;
+    await remove(ref(db, `rifa/${num}`));
+    closeModal();
+    showToast(`🔓 Número ${num} liberado`);
+    if (currentSeller) updateSellerPanel(currentSeller);
+  }
+  window.unsell = unsell;
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function exportCSV() {
+    let csv = 'Número,Nombre,Vendedor,Pago,Fecha\n';
+    for (let i = 0; i < 200; i++) {
+      const num = String(i).padStart(2,'0');
+      if (data[num]) {
+        const d = data[num];
+        csv += `${num},"${d.nombre}","${d.vendedor||''}","${d.fecha||''}"
+`;
+      }
+    }
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'rifa_ventas.csv'; a.click();
+    showToast('📋 Lista exportada');
+  }
+  window.exportCSV = exportCSV;
+</script>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar" id="bottom-bar">
+  <div class="bottom-bar-inner">
+    <button class="bb-admin-btn" id="admin-btn" onclick="toggleAdmin()">
+      <span class="bb-icon" id="bb-icon">🔐</span>
+      <span class="bb-label" id="admin-btn-label">Modo Admin</span>
+    </button>
+  </div>
+</div>
+</body>
+</html>
