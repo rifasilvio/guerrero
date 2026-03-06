@@ -941,8 +941,21 @@ body { padding-bottom: 80px; }
           <button class="btn btn-edit" onclick="editModal('${num}')">✏️ Editar</button>
           <button class="btn btn-danger" onclick="unsell('${num}')">🗑</button>`;
       } else {
-        infoArea.style.display = 'none';
+        const nombre = data[num]?.nombre || '';
         document.getElementById('modal-subtitle').textContent = 'este número ya fue vendido';
+        if (nombre) {
+          infoArea.style.display = 'block';
+          infoArea.style.background = '#FEF2F2';
+          infoArea.style.border = '1.5px solid #FECACA';
+          infoArea.innerHTML = `
+            <div style="text-align:center;padding:6px 0 2px">
+              <div style="font-size:28px;margin-bottom:6px">🙋</div>
+              <div style="font-size:13px;color:#64748B;font-weight:500;margin-bottom:4px">Este número lo compró</div>
+              <div style="font-size:20px;font-weight:800;color:#0F172A">${nombre}</div>
+            </div>`;
+        } else {
+          infoArea.style.display = 'none';
+        }
         actions.innerHTML = `<button class="btn btn-cancel" style="flex:1" onclick="closeModal()">Cerrar</button>`;
       }
     } else {
