@@ -440,22 +440,43 @@ body {
 }
 .sorteo-bg.open { display: flex; }
 .sorteo-box {
-  background: var(--surface); border-radius: 24px; padding: 32px 28px;
+  background: var(--surface); border-radius: 24px; padding: 28px 24px;
   max-width: 400px; width: 100%; text-align: center;
   box-shadow: var(--shadow-lg); animation: popIn .3s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes popIn { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
-.sorteo-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
-.sorteo-sub   { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
-.sorteo-drum  {
-  font-size: 64px; font-weight: 900; color: var(--accent);
-  font-family: 'Inter', monospace; line-height: 1;
-  min-height: 80px; display: flex; align-items: center; justify-content: center;
-  margin-bottom: 8px; transition: opacity .1s;
+.sorteo-prize-banner {
+  display: inline-block; background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: #fff; font-size: 11px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; padding: 4px 14px; border-radius: 99px; margin-bottom: 10px;
 }
-.sorteo-winner-name {
-  font-size: 18px; font-weight: 700; color: var(--text);
-  margin-bottom: 20px; min-height: 26px;
+.sorteo-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.sorteo-sub   { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.sorteo-count { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+.sorteo-drum  {
+  font-size: 62px; font-weight: 900; color: var(--accent);
+  font-family: 'Inter', monospace; line-height: 1;
+  min-height: 74px; display: flex; align-items: center; justify-content: center;
+}
+.sorteo-drum-name {
+  font-size: 16px; font-weight: 600; color: var(--text-muted);
+  min-height: 24px; margin-bottom: 16px; transition: opacity .1s;
+}
+/* Ganador */
+.sorteo-winner-card {
+  background: linear-gradient(135deg, #ECFDF5, #EEF2FF);
+  border: 2px solid #10B981; border-radius: 18px;
+  padding: 20px 16px; margin-bottom: 20px;
+  animation: popIn .4s cubic-bezier(.34,1.56,.64,1);
+}
+.sorteo-winner-num {
+  font-size: 52px; font-weight: 900; color: #10B981; line-height: 1; margin-bottom: 8px;
+}
+.sorteo-winner-comprador {
+  font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px;
+}
+.sorteo-winner-vendedor {
+  font-size: 13px; color: var(--text-muted); font-weight: 500;
 }
 .sorteo-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .btn-sorteo-go {
@@ -472,7 +493,6 @@ body {
   font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;
 }
 .btn-sorteo-close:hover { border-color: var(--border2); color: var(--text); }
-.sorteo-count { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
 
 /* BOTTOM BAR */
 .bottom-bar {
@@ -1079,19 +1099,43 @@ body { padding-bottom: 80px; }
 
   // SORTEO
   let sorteoInterval = null;
+  let sorteoRonda = 1; // 1 = primer premio, 2 = segundo premio
+
+  function actualizarBannerPremio() {
+    const banner = document.getElementById('sorteo-prize-banner');
+    const title  = document.getElementById('sorteo-title');
+    const sub    = document.getElementById('sorteo-sub');
+    if (sorteoRonda === 1) {
+      banner.style.background = 'linear-gradient(135deg, #4F46E5, #7C3AED)';
+      banner.textContent = '🏆 1er Premio — Pernil completo';
+      title.textContent  = '🎰 Sorteo — Primer Premio';
+    } else {
+      banner.style.background = 'linear-gradient(135deg, #64748B, #475569)';
+      banner.textContent = '🥈 2do Premio — Cabeza guateada';
+      title.textContent  = '🎰 Sorteo — Segundo Premio';
+    }
+    sub.textContent = 'Se sorteará entre todos los números vendidos';
+  }
+
   function openSorteo() {
     if (!isAdmin) return;
     const vendidos = Object.keys(data);
+    sorteoRonda = 1;
+    actualizarBannerPremio();
     document.getElementById('sorteo-count').textContent = `${vendidos.length} número${vendidos.length !== 1 ? 's' : ''} participando`;
     document.getElementById('sorteo-drum').textContent = '—';
-    document.getElementById('sorteo-winner-name').textContent = '';
-    document.getElementById('btn-sorteo-go').disabled = vendidos.length === 0;
+    document.getElementById('sorteo-drum').style.color = 'var(--accent)';
+    document.getElementById('sorteo-drum-name').textContent = '';
+    document.getElementById('sorteo-winner-card').style.display = 'none';
+    const btn = document.getElementById('btn-sorteo-go');
+    btn.disabled = vendidos.length === 0;
+    btn.textContent = '🎲 ¡Sortear!';
     document.getElementById('sorteo-bg').classList.add('open');
   }
   window.openSorteo = openSorteo;
 
   function closeSorteo() {
-    clearInterval(sorteoInterval);
+    clearTimeout(sorteoInterval);
     document.getElementById('sorteo-bg').classList.remove('open');
   }
   window.closeSorteo = closeSorteo;
@@ -1099,53 +1143,73 @@ body { padding-bottom: 80px; }
   function runSorteo() {
     const vendidos = Object.keys(data);
     if (!vendidos.length) return;
-    const btn = document.getElementById('btn-sorteo-go');
+    const btn    = document.getElementById('btn-sorteo-go');
+    const drum   = document.getElementById('sorteo-drum');
+    const nameEl = document.getElementById('sorteo-drum-name');
+    const card   = document.getElementById('sorteo-winner-card');
+
     btn.disabled = true;
-    const drum = document.getElementById('sorteo-drum');
-    const nameEl = document.getElementById('sorteo-winner-name');
-    nameEl.textContent = '';
     drum.style.color = 'var(--accent)';
+    card.style.display = 'none';
+    nameEl.textContent = '';
 
-    let ticks = 0;
-    const totalTicks = 28 + Math.floor(Math.random() * 12);
-    clearInterval(sorteoInterval);
-    sorteoInterval = setInterval(() => {
-      const rnd = vendidos[Math.floor(Math.random() * vendidos.length)];
-      drum.textContent = rnd;
-      ticks++;
-      if (ticks >= totalTicks) {
-        clearInterval(sorteoInterval);
-        // Elegir ganador final
-        const winner = vendidos[Math.floor(Math.random() * vendidos.length)];
-        drum.textContent = winner;
-        drum.style.color = '#10B981';
-        const nombre = data[winner]?.nombre || '';
-        nameEl.textContent = nombre ? `🎉 ${nombre}` : '🎉 ¡Ganador!';
-        btn.disabled = false;
-        btn.textContent = '🔄 Volver a sortear';
-      }
-    }, ticks < totalTicks * 0.6 ? 60 : 120);
-
-    // Animación acelerada → desacelerada
-    let delay = 60;
-    clearInterval(sorteoInterval);
+    const totalTicks = 30 + Math.floor(Math.random() * 14);
     let t = 0;
+    clearTimeout(sorteoInterval);
+
     function tick() {
       const rnd = vendidos[Math.floor(Math.random() * vendidos.length)];
       drum.textContent = rnd;
+      nameEl.textContent = data[rnd]?.nombre || '';
       t++;
       const progress = t / totalTicks;
-      delay = 60 + Math.pow(progress, 2) * 280;
+      const delay = 55 + Math.pow(progress, 2.2) * 320;
       if (t < totalTicks) {
         sorteoInterval = setTimeout(tick, delay);
       } else {
-        const winner = vendidos[Math.floor(Math.random() * vendidos.length)];
-        drum.textContent = winner;
-        drum.style.color = '#10B981';
-        const nombre = data[winner]?.nombre || '';
-        nameEl.textContent = nombre ? `🎉 ${nombre}` : '🎉 ¡Ganador!';
+        const winner  = vendidos[Math.floor(Math.random() * vendidos.length)];
+        const dWinner = data[winner];
+        drum.textContent   = '';
+        nameEl.textContent = '';
+
+        const esPrimero = sorteoRonda === 1;
+        const color     = esPrimero ? '#10B981' : '#64748B';
+
+        card.innerHTML = '';
+        card.style.border     = `2px solid ${color}`;
+        card.style.background = esPrimero
+          ? 'linear-gradient(135deg, #ECFDF5, #EEF2FF)'
+          : 'linear-gradient(135deg, #F8FAFC, #F1F5F9)';
+
+        const prizeMsg = document.createElement('div');
+        prizeMsg.style.cssText = `font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;color:${color}`;
+        prizeMsg.textContent = esPrimero ? '🏆 ¡Te ganaste el primer premio!' : '🥈 ¡Te ganaste el segundo premio!';
+        card.appendChild(prizeMsg);
+
+        const numDiv = document.createElement('div');
+        numDiv.className = 'sorteo-winner-num';
+        numDiv.style.color = color;
+        numDiv.textContent = winner;
+        card.appendChild(numDiv);
+
+        const compradorDiv = document.createElement('div');
+        compradorDiv.className = 'sorteo-winner-comprador';
+        compradorDiv.textContent = dWinner?.nombre || '—';
+        card.appendChild(compradorDiv);
+
+        if (dWinner?.vendedor) {
+          const vendedorDiv = document.createElement('div');
+          vendedorDiv.className = 'sorteo-winner-vendedor';
+          vendedorDiv.textContent = `Vendedor: ${dWinner.vendedor}`;
+          card.appendChild(vendedorDiv);
+        }
+
+        card.style.display = 'block';
+
+        sorteoRonda = sorteoRonda === 1 ? 2 : 1;
+        actualizarBannerPremio();
         btn.disabled = false;
-        btn.textContent = '🔄 Volver a sortear';
+        btn.textContent = sorteoRonda === 2 ? '🎲 Sortear 2do Premio' : '🔄 Volver a sortear';
       }
     }
     tick();
@@ -1173,11 +1237,22 @@ body { padding-bottom: 80px; }
 <!-- SORTEO MODAL -->
 <div class="sorteo-bg" id="sorteo-bg">
   <div class="sorteo-box">
-    <div class="sorteo-title">🎰 Sorteo Aleatorio</div>
-    <div class="sorteo-sub">Se sorteará entre todos los números vendidos</div>
+    <div class="sorteo-prize-banner" id="sorteo-prize-banner">🏆 1er Premio</div>
+    <div class="sorteo-title" id="sorteo-title">🎰 Sorteo Aleatorio</div>
+    <div class="sorteo-sub" id="sorteo-sub">Se sorteará entre todos los números vendidos</div>
     <div class="sorteo-count" id="sorteo-count"></div>
+
+    <!-- Durante el sorteo: número + nombre rolando -->
     <div class="sorteo-drum" id="sorteo-drum">—</div>
-    <div class="sorteo-winner-name" id="sorteo-winner-name"></div>
+    <div class="sorteo-drum-name" id="sorteo-drum-name"></div>
+
+    <!-- Resultado ganador -->
+    <div class="sorteo-winner-card" id="sorteo-winner-card" style="display:none">
+      <div class="sorteo-winner-num" id="sorteo-winner-num"></div>
+      <div class="sorteo-winner-comprador" id="sorteo-winner-comprador"></div>
+      <div class="sorteo-winner-vendedor" id="sorteo-winner-vendedor"></div>
+    </div>
+
     <div class="sorteo-actions">
       <button class="btn-sorteo-go" id="btn-sorteo-go" onclick="runSorteo()">🎲 ¡Sortear!</button>
       <button class="btn-sorteo-close" onclick="closeSorteo()">Cerrar</button>
