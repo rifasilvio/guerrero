@@ -662,6 +662,61 @@ body {
 }
 .btn-final-close:hover { background: rgba(255,255,255,.25); }
 
+/* ANIMACIONES FESTIVAS — pantalla final */
+@keyframes firework-burst {
+  0%   { transform: scale(0) rotate(0deg); opacity: 1; }
+  60%  { transform: scale(1.2) rotate(180deg); opacity: 1; }
+  100% { transform: scale(1.8) rotate(360deg); opacity: 0; }
+}
+@keyframes particle-fly {
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+@keyframes msg-bounce {
+  0%,100% { transform: scale(1) translateY(0); }
+  50%     { transform: scale(1.12) translateY(-6px); }
+}
+@keyframes card-pop {
+  0%   { transform: scale(0.5) translateY(30px); opacity: 0; }
+  70%  { transform: scale(1.05) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes shimmer-bg {
+  0%,100% { background-position: 0% 50%; }
+  50%     { background-position: 100% 50%; }
+}
+.sorteo-final-canvas {
+  position: fixed; inset: 0; pointer-events: none; z-index: 601; overflow: hidden;
+}
+.fw-particle {
+  position: absolute; width: 8px; height: 8px; border-radius: 50%;
+  animation: particle-fly .8s ease-out forwards;
+}
+.confetti-piece {
+  position: absolute; width: 9px; height: 14px; border-radius: 2px;
+  animation: confetti-fall linear forwards;
+}
+.final-festive-msg {
+  font-size: 19px; font-weight: 900; color: #FDE68A;
+  animation: msg-bounce 1.4s ease-in-out infinite;
+  margin-bottom: 10px; letter-spacing: 1px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.4);
+}
+.sorteo-final-card {
+  animation: card-pop .6s cubic-bezier(.34,1.56,.64,1) both;
+}
+#final-card-1 { animation-delay: .15s; }
+#final-card-2 { animation-delay: .45s; }
+.sorteo-final-bg.open {
+  background: linear-gradient(150deg,#1E1B4B,#1A4F8A,#1565C0,#1E1B4B);
+  background-size: 300% 300%;
+  animation: shimmer-bg 6s ease infinite;
+}
+
 /* BOTTOM BAR */
 .bottom-bar {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
@@ -1402,7 +1457,9 @@ body { padding-bottom: 80px; }
       }
     }
 
-    const totalTicks = 30 + Math.floor(Math.random() * 14);
+    const totalTicks = 55 + Math.floor(Math.random() * 15);
+    const MIN_DURATION = 10000; // mínimo 10 segundos
+    const startTime = Date.now();
     let t = 0;
     clearTimeout(sorteoInterval);
 
@@ -1411,9 +1468,14 @@ body { padding-bottom: 80px; }
       drum.textContent   = rnd;
       nameEl.textContent = data[rnd]?.nombre || '';
       t++;
-      const delay = 55 + Math.pow(t / totalTicks, 2.2) * 320;
-      if (t < totalTicks) {
-        sorteoInterval = setTimeout(tick, delay);
+      const progress = t / totalTicks;
+      const delay = 40 + Math.pow(progress, 2.5) * 480;
+      const elapsed = Date.now() - startTime;
+      const isLastTick = t >= totalTicks && elapsed >= MIN_DURATION;
+      if (!isLastTick) {
+        // Si ya pasamos los ticks pero no los 10s, seguimos girando lento
+        const nextDelay = t >= totalTicks ? 320 : delay;
+        sorteoInterval = setTimeout(tick, nextDelay);
       } else {
         const winner  = poolFinal[Math.floor(Math.random() * poolFinal.length)];
         const dWinner = data[winner];
@@ -1541,6 +1603,112 @@ body { padding-bottom: 80px; }
   }
   window.runSorteo = runSorteo;
 
+  /* ── ANIMACIONES FESTIVAS ── */
+  const FESTIVE_MSGS = [
+    '🎊 ¡Felicidades! 🎊',
+    '🥳 ¡Muchas felicidades!',
+    '🎉 ¡Felices ganadores!',
+    '🙏 ¡Muchas gracias a todos!',
+    '🎰 ¡Que buena rifa!',
+    '❤️ ¡Gracias por participar!',
+    '🥂 ¡A celebrar!',
+  ];
+  let festiveInterval = null;
+  let festiveAnimFrame = null;
+  let confettiArr = [];
+
+  const COLORS = ['#FDE68A','#F472B6','#60A5FA','#34D399','#FB923C','#C084FC','#F87171','#FACC15'];
+
+  function launchFirework(canvas) {
+    const x = 10 + Math.random() * 80;
+    const y = 5  + Math.random() * 50;
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const count = 18 + Math.floor(Math.random() * 10);
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * 2 * Math.PI;
+      const dist  = 60 + Math.random() * 80;
+      const p = document.createElement('div');
+      p.className = 'fw-particle';
+      p.style.cssText = `
+        left:${x}%; top:${y}%;
+        background:${color};
+        --dx:${Math.cos(angle)*dist}px;
+        --dy:${Math.sin(angle)*dist}px;
+        animation-duration:${0.6 + Math.random()*0.5}s;
+        animation-delay:${Math.random()*0.1}s;
+        width:${5+Math.random()*6}px;height:${5+Math.random()*6}px;
+      `;
+      canvas.appendChild(p);
+      setTimeout(() => p.remove(), 1100);
+    }
+  }
+
+  function spawnConfetti(canvas) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      top:-20px;
+      background:${COLORS[Math.floor(Math.random()*COLORS.length)]};
+      animation-duration:${2.5+Math.random()*2.5}s;
+      animation-delay:${Math.random()*0.5}s;
+      transform: rotate(${Math.random()*360}deg);
+    `;
+    canvas.appendChild(p);
+    setTimeout(() => p.remove(), 5500);
+  }
+
+  function startFestive() {
+    const canvas = document.getElementById('sorteo-final-canvas');
+    const msgEl  = document.getElementById('final-festive-msg');
+    if (!canvas || !msgEl) return;
+    canvas.innerHTML = '';
+    let msgIdx = 0;
+
+    // Fuegos artificiales cada 900ms
+    festiveInterval = setInterval(() => {
+      launchFirework(canvas);
+      launchFirework(canvas);
+      // Confetti continuo
+      for (let i = 0; i < 6; i++) spawnConfetti(canvas);
+      // Mensaje rotativo
+      msgIdx = (msgIdx + 1) % FESTIVE_MSGS.length;
+      msgEl.style.animation = 'none';
+      void msgEl.offsetWidth;
+      msgEl.style.animation = '';
+      msgEl.textContent = FESTIVE_MSGS[msgIdx];
+    }, 1000);
+
+    // Salva inicial inmediata
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => launchFirework(canvas), i * 250);
+      for (let j = 0; j < 8; j++) setTimeout(() => spawnConfetti(canvas), i * 250 + j * 30);
+    }
+  }
+
+  function stopFestive() {
+    clearInterval(festiveInterval);
+    cancelAnimationFrame(festiveAnimFrame);
+    const canvas = document.getElementById('sorteo-final-canvas');
+    if (canvas) canvas.innerHTML = '';
+  }
+
+  // Hook en la apertura / cierre de la pantalla final
+  const _origOpen  = document.getElementById('sorteo-final-bg');
+  const _observer  = new MutationObserver(muts => {
+    muts.forEach(m => {
+      if (m.attributeName === 'class') {
+        const el = m.target;
+        if (el.classList.contains('open')) {
+          startFestive();
+        } else {
+          stopFestive();
+        }
+      }
+    });
+  });
+  if (_origOpen) _observer.observe(_origOpen, { attributes: true });
+
   function exportCSV() {
     let csv = 'Número,Nombre,Vendedor,Pago,Fecha\n';
     for (let i = 0; i < 200; i++) {
@@ -1639,10 +1807,12 @@ body { padding-bottom: 80px; }
 </div>
 
 <!-- PANTALLA FINAL — ambos ganadores -->
+<div class="sorteo-final-canvas" id="sorteo-final-canvas"></div>
 <div class="sorteo-final-bg" id="sorteo-final-bg">
   <div class="sorteo-final-box">
     <div class="sorteo-final-eyebrow">🎉 Resultados del sorteo</div>
     <div class="sorteo-final-heading">¡Tenemos ganadores!</div>
+    <div class="final-festive-msg" id="final-festive-msg">🎊 ¡Felicidades! 🎊</div>
     <div class="sorteo-final-sub">Rifa Solidaria — Silvio Guerrero</div>
     <div class="sorteo-final-card gold" id="final-card-1">
       <div class="sorteo-final-prize-row">
