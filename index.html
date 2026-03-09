@@ -631,6 +631,28 @@ body { padding-bottom: 80px; }
 @keyframes temblor { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
 @keyframes saltar { 0% { transform: translateY(-20px); } 100% { transform: translateY(-60px); } }
 
+  <div id="animacion-sorteo" class="estado-reposo">
+  <svg viewBox="0 0 200 150">
+    <rect class="cama" x="20" y="100" width="160" height="20" rx="5" fill="#CBD5E1" />
+    <path class="suero" d="M 40,30 L 40,100 M 30,30 L 50,30" stroke="#94A3B8" stroke-width="4" />
+    <circle class="gota-suero" cx="40" cy="50" r="4" fill="#38BDF8" />
+    <g class="personaje">
+      <circle cx="100" cy="80" r="15" fill="#FDE047" /> 
+      <rect x="90" y="95" width="20" height="30" fill="#4F46E5" rx="5"/> 
+      <path class="brazos" d="M 90,100 L 70,120 M 110,100 L 130,120" stroke="#FDE047" stroke-width="6" stroke-linecap="round" />
+      <path class="piernas" d="M 95,125 L 95,145 M 105,125 L 105,145" stroke="#4F46E5" stroke-width="6" stroke-linecap="round" />
+    </g>
+  </svg>
+</div>
+
+<div class="reglas-claras">
+  <h3 style="color: #4F46E5; margin-bottom: 10px;">📜 Reglas del Sorteo</h3>
+  <ul style="list-style: none; padding: 0; font-size: 14px;">
+    <li>✔️ El sorteo es aleatorio y transparente.</li>
+    <li>✔️ Solo participan números PAGADOS.</li>
+    <li>✔️ Los premios no son canjeables por efectivo.</li>
+  </ul>
+</div>
 /* Estilos de Reglas y Footer */
 .reglas-claras { background: white; border-radius: 16px; padding: 25px; box-shadow: var(--shadow-md); margin: 20px auto; max-width: 600px; }
 .admin-tools { max-width: 600px; margin: 0 auto; padding: 10px; text-align: right; }
