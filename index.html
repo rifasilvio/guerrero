@@ -1285,7 +1285,7 @@ body { padding-bottom: 80px; }
     sorteoRonda = 1;
     ganador1    = null;
     actualizarBannerPremio();
-    document.getElementById('sorteo-count').textContent = `${vendidos.length} número${vendidos.length !== 1 ? 's' : ''} participando`;
+    document.getElementById('sorteo-count').textContent = '';
     document.getElementById('sorteo-drum').textContent = '—';
     document.getElementById('sorteo-drum').style.color = 'var(--accent)';
     document.getElementById('sorteo-drum-name').textContent = '';
@@ -1358,7 +1358,7 @@ body { padding-bottom: 80px; }
       if (vendedorExcluido && pool.length === 0) {
         countEl.textContent = '⚠️ Todos los números son del mismo vendedor — sorteando entre todos';
       } else if (vendedorExcluido) {
-        countEl.textContent = poolFinal.length + ' números de otros vendedores participando';
+        countEl.textContent = '';
       }
     }
 
@@ -1436,7 +1436,7 @@ body { padding-bottom: 80px; }
           if (vEx2 && pool2.length === 0) {
             countEl.textContent = '⚠️ Todos los números son del mismo vendedor';
           } else if (vEx2) {
-            countEl.textContent = pool2F.length + ' números de otros vendedores';
+            countEl.textContent = '';
           }
           btn.disabled = false;
           btn.textContent = '🎲 Sortear 2do Premio';
@@ -1487,6 +1487,7 @@ body { padding-bottom: 80px; }
     showToast('📋 Lista exportada');
   }
   window.exportCSV = exportCSV;
+})();
 </script>
 
 <!-- SORTEO MODAL -->
