@@ -455,47 +455,14 @@ body {
 .sorteo-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
 .sorteo-sub   { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
 .sorteo-count { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
-.sorteo-drum  { display: none; }
+.sorteo-drum  {
+  font-size: 62px; font-weight: 900; color: var(--accent);
+  font-family: 'Inter', monospace; line-height: 1;
+  min-height: 74px; display: flex; align-items: center; justify-content: center;
+}
 .sorteo-drum-name {
-  font-size: 16px; font-weight: 700; color: var(--text);
-  min-height: 22px; margin-bottom: 8px; transition: color .3s; text-align: center;
-}
-/* ── RULETA ── */
-.ruleta-wrap {
-  position: relative; display: flex; flex-direction: column;
-  align-items: center; margin-bottom: 8px;
-}
-.ruleta-canvas-container {
-  position: relative; width: 270px; height: 270px;
-  margin: 0 auto 4px;
-}
-#ruleta-canvas { border-radius: 50%; display: block; }
-.ruleta-pointer {
-  position: absolute; top: -12px; left: 50%;
-  transform: translateX(-50%);
-  width: 0; height: 0;
-  border-left: 13px solid transparent;
-  border-right: 13px solid transparent;
-  border-top: 30px solid #EF4444;
-  filter: drop-shadow(0 3px 6px rgba(0,0,0,.45));
-  z-index: 10; transform-origin: top center;
-  transition: transform .05s ease;
-}
-.ruleta-center {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 50px; height: 50px; border-radius: 50%;
-  background: linear-gradient(135deg, #4F46E5, #7C3AED);
-  border: 4px solid #fff;
-  box-shadow: 0 2px 12px rgba(79,70,229,.5);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; z-index: 10;
-}
-@keyframes pointer-bounce {
-  0%,100% { transform: translateX(-50%) rotate(0deg); }
-  30%  { transform: translateX(-50%) rotate(-20deg); }
-  60%  { transform: translateX(-50%) rotate(12deg); }
-  80%  { transform: translateX(-50%) rotate(-6deg); }
+  font-size: 16px; font-weight: 600; color: var(--text-muted);
+  min-height: 22px; margin-bottom: 12px;
 }
 /* Mini card ganador previo (1er premio durante 2do sorteo) */
 .sorteo-prev-card {
@@ -694,61 +661,6 @@ body {
   font-size: 15px; font-weight: 700; cursor: pointer; transition: background .2s;
 }
 .btn-final-close:hover { background: rgba(255,255,255,.25); }
-
-/* ANIMACIONES FESTIVAS — pantalla final */
-@keyframes firework-burst {
-  0%   { transform: scale(0) rotate(0deg); opacity: 1; }
-  60%  { transform: scale(1.2) rotate(180deg); opacity: 1; }
-  100% { transform: scale(1.8) rotate(360deg); opacity: 0; }
-}
-@keyframes particle-fly {
-  0%   { transform: translate(0,0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
-}
-@keyframes confetti-fall {
-  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-}
-@keyframes msg-bounce {
-  0%,100% { transform: scale(1) translateY(0); }
-  50%     { transform: scale(1.12) translateY(-6px); }
-}
-@keyframes card-pop {
-  0%   { transform: scale(0.5) translateY(30px); opacity: 0; }
-  70%  { transform: scale(1.05) translateY(-4px); opacity: 1; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
-}
-@keyframes shimmer-bg {
-  0%,100% { background-position: 0% 50%; }
-  50%     { background-position: 100% 50%; }
-}
-.sorteo-final-canvas {
-  position: fixed; inset: 0; pointer-events: none; z-index: 601; overflow: hidden;
-}
-.fw-particle {
-  position: absolute; width: 8px; height: 8px; border-radius: 50%;
-  animation: particle-fly .8s ease-out forwards;
-}
-.confetti-piece {
-  position: absolute; width: 9px; height: 14px; border-radius: 2px;
-  animation: confetti-fall linear forwards;
-}
-.final-festive-msg {
-  font-size: 19px; font-weight: 900; color: #FDE68A;
-  animation: msg-bounce 1.4s ease-in-out infinite;
-  margin-bottom: 10px; letter-spacing: 1px;
-  text-shadow: 0 2px 12px rgba(0,0,0,.4);
-}
-.sorteo-final-card {
-  animation: card-pop .6s cubic-bezier(.34,1.56,.64,1) both;
-}
-#final-card-1 { animation-delay: .15s; }
-#final-card-2 { animation-delay: .45s; }
-.sorteo-final-bg.open {
-  background: linear-gradient(150deg,#1E1B4B,#1A4F8A,#1565C0,#1E1B4B);
-  background-size: 300% 300%;
-  animation: shimmer-bg 6s ease infinite;
-}
 
 /* BOTTOM BAR */
 .bottom-bar {
@@ -1388,15 +1300,6 @@ body { padding-bottom: 80px; }
     btn.disabled = vendidos.length === 0;
     btn.textContent = '🎲 ¡Sortear!';
     document.getElementById('sorteo-bg').classList.add('open');
-    // Inicializar ruleta con números disponibles
-    const vendidosInit = Object.keys(data);
-    if (window.ruletaInit && vendidosInit.length) {
-      window.ruletaInit(vendidosInit);
-    } else if (!window.ruletaInit) {
-      // Fallback: intentar inicializar si aún no está lista
-      initRuleta();
-      if (window.ruletaInit && vendidosInit.length) window.ruletaInit(vendidosInit);
-    }
     // Personaje: reset a reposo
     const pW = document.getElementById('personaje-wrap');
     const pM = document.getElementById('personaje-msg');
@@ -1447,14 +1350,16 @@ body { padding-bottom: 80px; }
   function runSorteo() {
     const vendidos = Object.keys(data);
     if (!vendidos.length) return;
-    const btn     = document.getElementById('btn-sorteo-go');
-    const nameEl  = document.getElementById('sorteo-drum-name');
-    const card    = document.getElementById('sorteo-winner-card');
+    const btn    = document.getElementById('btn-sorteo-go');
+    const drum   = document.getElementById('sorteo-drum');
+    const nameEl = document.getElementById('sorteo-drum-name');
+    const card   = document.getElementById('sorteo-winner-card');
     const countEl = document.getElementById('sorteo-count');
 
     btn.disabled = true;
+    drum.style.color = 'var(--accent)';
     card.style.display = 'none';
-    nameEl.textContent = '🎡 Girando la ruleta...';
+    nameEl.textContent = '';
 
     // Personaje: estado sorteando
     const pWrap = document.getElementById('personaje-wrap');
@@ -1462,6 +1367,7 @@ body { padding-bottom: 80px; }
     const bocaEl = document.getElementById('boca-personaje');
     if (pWrap) {
       pWrap.className = 'emoji-wrap estado-sorteando';
+      // Mostrar sudor y mano
       const sudor = document.getElementById('sudor');
       const brazo = document.getElementById('brazo-morder');
       const puno  = document.getElementById('puno-morder');
@@ -1470,15 +1376,17 @@ body { padding-bottom: 80px; }
       if (brazo) brazo.setAttribute('opacity','1');
       if (puno)  puno.setAttribute('opacity','1');
       if (dedos) dedos.setAttribute('opacity','1');
+      // Cejas nerviosas (inclinadas hacia adentro)
       const ci = document.getElementById('ceja-izq');
       const cd = document.getElementById('ceja-der');
       if (ci) ci.setAttribute('d','M20 26 Q27 22 34 27');
       if (cd) cd.setAttribute('d','M54 27 Q61 22 68 26');
+      // Boca nerviosa (ondulada)
       if (bocaEl) bocaEl.setAttribute('d','M30 62 Q37 58 44 62 Q51 66 58 62');
     }
     if (pMsg) pMsg.textContent = '😬 ¡Sorteando...';
 
-    // Pool de números
+    // Para el 2do sorteo: excluir números del vendedor ganador del 1er premio
     const vendedorExcluido = (sorteoRonda === 2 && ganador1 && ganador1.vendedor)
       ? ganador1.vendedor.trim().toLowerCase() : null;
     const pool = vendedorExcluido
@@ -1494,20 +1402,23 @@ body { padding-bottom: 80px; }
       }
     }
 
-    // Elegir ganador real ANTES de empezar (la ruleta lo muestra al final)
-    const winner  = poolFinal[Math.floor(Math.random() * poolFinal.length)];
-    const dWinner = data[winner];
+    const totalTicks = 30 + Math.floor(Math.random() * 14);
+    let t = 0;
+    clearTimeout(sorteoInterval);
 
-    // Iniciar la ruleta con los números del pool
-    const MIN_DURATION = 10000;
-    if (window.ruletaInit) window.ruletaInit(poolFinal);
-
-    if (window.ruletaSpin) {
-      window.ruletaSpin(poolFinal, MIN_DURATION, null, function(/*spinResult*/) {
-        // Ignoramos el resultado de la ruleta visual — usamos winner real
-        // Forzar que el segmento apuntado muestre el ganador
-        if (window.ruletaSetWinner) window.ruletaSetWinner(winner, poolFinal);
-        nameEl.textContent = dWinner?.nombre || '';
+    function tick() {
+      const rnd = poolFinal[Math.floor(Math.random() * poolFinal.length)];
+      drum.textContent   = rnd;
+      nameEl.textContent = data[rnd]?.nombre || '';
+      t++;
+      const delay = 55 + Math.pow(t / totalTicks, 2.2) * 320;
+      if (t < totalTicks) {
+        sorteoInterval = setTimeout(tick, delay);
+      } else {
+        const winner  = poolFinal[Math.floor(Math.random() * poolFinal.length)];
+        const dWinner = data[winner];
+        drum.textContent   = '';
+        nameEl.textContent = '';
 
         const esPrimero = sorteoRonda === 1;
         const color  = esPrimero ? '#10B981' : '#64748B';
@@ -1536,11 +1447,18 @@ body { padding-bottom: 80px; }
         nameWin.textContent = dWinner?.nombre || '—';
         card.appendChild(nameWin);
 
+        // vendedor oculto en sorteo
+
+
+
+
+
         card.style.display = 'block';
 
-        // Personaje: celebrando
+        // Personaje: estado celebrando
         if (pWrap) {
           pWrap.className = 'emoji-wrap estado-celebrando';
+          // Ocultar sudor y mano
           const sudor = document.getElementById('sudor');
           const brazo = document.getElementById('brazo-morder');
           const puno  = document.getElementById('puno-morder');
@@ -1549,10 +1467,12 @@ body { padding-bottom: 80px; }
           if (brazo) brazo.setAttribute('opacity','0');
           if (puno)  puno.setAttribute('opacity','0');
           if (dedos) dedos.setAttribute('opacity','0');
+          // Cejas levantadas de alegría
           const ci = document.getElementById('ceja-izq');
           const cd = document.getElementById('ceja-der');
           if (ci) ci.setAttribute('d','M20 20 Q27 16 34 20');
           if (cd) cd.setAttribute('d','M54 20 Q61 16 68 20');
+          // Boca abierta sonriendo
           if (bocaEl) bocaEl.setAttribute('d','M26 58 Q44 74 62 58');
         }
         if (pMsg) pMsg.textContent = esPrimero ? '🥳 ¡Hay un ganador!' : '🎉 ¡Segundo ganador!';
@@ -1565,8 +1485,10 @@ body { padding-bottom: 80px; }
           document.getElementById('sorteo-prev-name').textContent = ganador1.nombre;
           document.getElementById('sorteo-prev-vend').textContent = '';
           document.getElementById('sorteo-prev-card').style.display = 'flex';
+          // Actualizar contador para 2do sorteo
           const vEx2 = ganador1.vendedor ? ganador1.vendedor.trim().toLowerCase() : null;
           const pool2 = vEx2 ? vendidos.filter(n => (data[n]?.vendedor||'').trim().toLowerCase() !== vEx2) : vendidos;
+          const pool2F = pool2.length > 0 ? pool2 : vendidos;
           if (vEx2 && pool2.length === 0) {
             countEl.textContent = '⚠️ Todos los números son del mismo vendedor';
           } else if (vEx2) {
@@ -1574,6 +1496,7 @@ body { padding-bottom: 80px; }
           }
           btn.disabled = false;
           btn.textContent = '🎲 Sortear 2do Premio';
+          // Personaje: volver a reposo entre rondas
           setTimeout(() => {
             if (pWrap) {
               pWrap.className = 'emoji-wrap estado-reposo';
@@ -1612,311 +1535,11 @@ body { padding-bottom: 80px; }
             btn.textContent = '🎲 ¡Sortear!';
           };
         }
-      });
+      }
     }
+    tick();
   }
   window.runSorteo = runSorteo;
-  /* ── RULETA ── */
-  function initRuleta() {
-    const WHEEL_COLORS = [
-      '#4F46E5','#7C3AED','#0EA5E9','#10B981','#F59E0B',
-      '#EF4444','#EC4899','#8B5CF6','#14B8A6','#F97316',
-      '#6366F1','#06B6D4','#84CC16','#E11D48','#0284C7'
-    ];
-
-    const canvas  = document.getElementById('ruleta-canvas');
-    const pointer = document.getElementById('ruleta-pointer');
-    const ctx     = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    const cx = W/2, cy = H/2, R = W/2 - 4;
-
-    let currentAngle  = 0; // radianes — ángulo actual de la rueda
-    let segments      = []; // array de strings (números)
-    let roulFrame     = null;
-    let spinning      = false;
-    let lastClickTick = 0;
-
-    function buildSegments(pool) {
-      // Muestra 15 segmentos: números aleatorios del pool
-      const n = 15;
-      const arr = [];
-      for (let i = 0; i < n; i++) {
-        arr.push(pool[Math.floor(Math.random() * pool.length)]);
-      }
-      return arr;
-    }
-
-    function drawWheel(angle) {
-      ctx.clearRect(0, 0, W, H);
-      if (!segments.length) {
-        // Estado inicial — rueda vacía con guión
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI*2);
-        ctx.fillStyle = '#E2E8F0';
-        ctx.fill();
-        ctx.fillStyle = '#94A3B8';
-        ctx.font = 'bold 48px Inter, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('—', cx, cy);
-        ctx.restore();
-        return;
-      }
-
-      const n = segments.length;
-      const arc = (Math.PI * 2) / n;
-
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(angle - Math.PI/2); // 0° = arriba
-
-      for (let i = 0; i < n; i++) {
-        const start = i * arc;
-        const end   = start + arc;
-        const color = WHEEL_COLORS[i % WHEEL_COLORS.length];
-
-        // Segmento
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.arc(0, 0, R, start, end);
-        ctx.closePath();
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,.6)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        // Número
-        ctx.save();
-        ctx.rotate(start + arc/2);
-        ctx.translate(R * 0.65, 0);
-        ctx.rotate(Math.PI / 2);
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 16px Inter, monospace';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        // Sombra ligera
-        ctx.shadowColor = 'rgba(0,0,0,.4)';
-        ctx.shadowBlur  = 3;
-        ctx.fillText(segments[i], 0, 0);
-        ctx.restore();
-      }
-
-      // Borde exterior
-      ctx.beginPath();
-      ctx.arc(0, 0, R, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(255,255,255,.4)';
-      ctx.lineWidth = 4;
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    function tickPointer(speed) {
-      // El palito "golpea" con cada segmento que pasa
-      // speed = velocidad angular (rad/tick). Si es rápido el palito vibra
-      const n = segments.length;
-      const arc = (Math.PI * 2) / n;
-      const normalized = ((currentAngle % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
-      const segIdx = Math.floor(normalized / arc) % n;
-      if (segIdx !== lastClickTick) {
-        lastClickTick = segIdx;
-        if (pointer) {
-          const deg = speed > 0.15 ? 18 : speed > 0.05 ? 12 : 6;
-          pointer.style.animation = 'none';
-          void pointer.offsetWidth;
-          pointer.style.transform = `translateX(-50%) rotate(${deg}deg)`;
-          setTimeout(() => {
-            pointer.style.transform = 'translateX(-50%) rotate(0deg)';
-          }, 80);
-        }
-      }
-    }
-
-    // API pública
-    window.ruletaInit = function(pool) {
-      cancelAnimationFrame(roulFrame);
-      spinning = false;
-      segments = buildSegments(pool);
-      currentAngle = Math.random() * Math.PI * 2;
-      drawWheel(currentAngle);
-    };
-
-    window.ruletaSpin = function(pool, durationMs, onTick, onEnd) {
-      // Gira la rueda durante durationMs ms, llamando onTick en cada frame
-      // Al final, llama onEnd con el número que quedó apuntado
-      spinning = true;
-      const startTime = performance.now();
-      // Velocidad inicial alta, desacelera con easing
-      const totalRot = Math.PI * 2 * (8 + Math.random() * 4); // 8-12 vueltas
-      let lastAngle = 0;
-
-      function frame(now) {
-        const elapsed = now - startTime;
-        const t = Math.min(elapsed / durationMs, 1);
-        // Easing: empieza rápido, termina lento
-        const eased = 1 - Math.pow(1 - t, 3.5);
-        const rot = totalRot * eased;
-        const speed = rot - lastAngle;
-        lastAngle = rot;
-
-        currentAngle = rot;
-        // Rebuild segments occasionally during spin for variety
-        if (t < 0.85 && Math.random() < 0.08) {
-          segments = buildSegments(pool);
-        }
-        drawWheel(currentAngle);
-        tickPointer(speed);
-
-        if (onTick) onTick();
-
-        if (t < 1) {
-          roulFrame = requestAnimationFrame(frame);
-        } else {
-          spinning = false;
-          // Determinar qué número quedó apuntado (segmento en la parte superior)
-          const n = segments.length;
-          const arc = (Math.PI * 2) / n;
-          // ángulo normalizado. El tope es -PI/2 (en coordenadas canvas después del rotate)
-          const normalAngle = ((currentAngle % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
-          const pointerAngle = ((Math.PI*2 - normalAngle) + Math.PI*2) % (Math.PI*2);
-          const segIdx = Math.floor(pointerAngle / arc) % n;
-          if (onEnd) onEnd(segments[segIdx]);
-        }
-      }
-      roulFrame = requestAnimationFrame(frame);
-    };
-
-    window.ruletaSetWinner = function(winnerNum, pool) {
-      // Reemplaza un segmento con el ganador real y rota para que quede apuntado
-      spinning = false;
-      cancelAnimationFrame(roulFrame);
-      // Poner el ganador en el segmento 0 y rotar para que quede arriba
-      const n = segments.length;
-      segments[0] = winnerNum;
-      // Para que el segmento 0 quede apuntado: normalAngle=0 → el flapper apunta al seg 0
-      currentAngle = 0;
-      drawWheel(currentAngle);
-    };
-
-    // Dibujo inicial
-    drawWheel(currentAngle);
-  }
-
-  // Inicializar la ruleta una vez que el DOM esté listo
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initRuleta);
-  } else {
-    initRuleta();
-  }
-
-  window.ruletaStop = function() {
-    /* usado externamente si necesario */ };
-
-  window.ruletaStop = function() {};
-  const FESTIVE_MSGS = [
-    '🎊 ¡Felicidades! 🎊',
-    '🥳 ¡Muchas felicidades!',
-    '🎉 ¡Felices ganadores!',
-    '🙏 ¡Muchas gracias a todos!',
-    '🎰 ¡Que buena rifa!',
-    '❤️ ¡Gracias por participar!',
-    '🥂 ¡A celebrar!',
-  ];
-  let festiveInterval = null;
-  let festiveAnimFrame = null;
-  let confettiArr = [];
-
-  const COLORS = ['#FDE68A','#F472B6','#60A5FA','#34D399','#FB923C','#C084FC','#F87171','#FACC15'];
-
-  function launchFirework(canvas) {
-    const x = 10 + Math.random() * 80;
-    const y = 5  + Math.random() * 50;
-    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-    const count = 18 + Math.floor(Math.random() * 10);
-    for (let i = 0; i < count; i++) {
-      const angle = (i / count) * 2 * Math.PI;
-      const dist  = 60 + Math.random() * 80;
-      const p = document.createElement('div');
-      p.className = 'fw-particle';
-      p.style.cssText = `
-        left:${x}%; top:${y}%;
-        background:${color};
-        --dx:${Math.cos(angle)*dist}px;
-        --dy:${Math.sin(angle)*dist}px;
-        animation-duration:${0.6 + Math.random()*0.5}s;
-        animation-delay:${Math.random()*0.1}s;
-        width:${5+Math.random()*6}px;height:${5+Math.random()*6}px;
-      `;
-      canvas.appendChild(p);
-      setTimeout(() => p.remove(), 1100);
-    }
-  }
-
-  function spawnConfetti(canvas) {
-    const p = document.createElement('div');
-    p.className = 'confetti-piece';
-    p.style.cssText = `
-      left:${Math.random()*100}%;
-      top:-20px;
-      background:${COLORS[Math.floor(Math.random()*COLORS.length)]};
-      animation-duration:${2.5+Math.random()*2.5}s;
-      animation-delay:${Math.random()*0.5}s;
-      transform: rotate(${Math.random()*360}deg);
-    `;
-    canvas.appendChild(p);
-    setTimeout(() => p.remove(), 5500);
-  }
-
-  function startFestive() {
-    const canvas = document.getElementById('sorteo-final-canvas');
-    const msgEl  = document.getElementById('final-festive-msg');
-    if (!canvas || !msgEl) return;
-    canvas.innerHTML = '';
-    let msgIdx = 0;
-
-    // Fuegos artificiales cada 900ms
-    festiveInterval = setInterval(() => {
-      launchFirework(canvas);
-      launchFirework(canvas);
-      // Confetti continuo
-      for (let i = 0; i < 6; i++) spawnConfetti(canvas);
-      // Mensaje rotativo
-      msgIdx = (msgIdx + 1) % FESTIVE_MSGS.length;
-      msgEl.style.animation = 'none';
-      void msgEl.offsetWidth;
-      msgEl.style.animation = '';
-      msgEl.textContent = FESTIVE_MSGS[msgIdx];
-    }, 1000);
-
-    // Salva inicial inmediata
-    for (let i = 0; i < 3; i++) {
-      setTimeout(() => launchFirework(canvas), i * 250);
-      for (let j = 0; j < 8; j++) setTimeout(() => spawnConfetti(canvas), i * 250 + j * 30);
-    }
-  }
-
-  function stopFestive() {
-    clearInterval(festiveInterval);
-    cancelAnimationFrame(festiveAnimFrame);
-    const canvas = document.getElementById('sorteo-final-canvas');
-    if (canvas) canvas.innerHTML = '';
-  }
-
-  // Hook en la apertura / cierre de la pantalla final
-  const _origOpen  = document.getElementById('sorteo-final-bg');
-  const _observer  = new MutationObserver(muts => {
-    muts.forEach(m => {
-      if (m.attributeName === 'class') {
-        const el = m.target;
-        if (el.classList.contains('open')) {
-          startFestive();
-        } else {
-          stopFestive();
-        }
-      }
-    });
-  });
-  if (_origOpen) _observer.observe(_origOpen, { attributes: true });
 
   function exportCSV() {
     let csv = 'Número,Nombre,Vendedor,Pago,Fecha\n';
@@ -2003,16 +1626,9 @@ body { padding-bottom: 80px; }
     </div>
     <div class="personaje-msg" id="personaje-msg">😰 ¡Esperando el sorteo!</div>
 
-    <!-- Ruleta canvas -->
-    <div class="ruleta-wrap">
-      <div class="ruleta-canvas-container">
-        <canvas id="ruleta-canvas" width="270" height="270"></canvas>
-        <div class="ruleta-pointer" id="ruleta-pointer"></div>
-        <div class="ruleta-center">🎰</div>
-      </div>
-    </div>
+    <!-- Ruleta -->
+    <div class="sorteo-drum" id="sorteo-drum">—</div>
     <div class="sorteo-drum-name" id="sorteo-drum-name"></div>
-    <div class="sorteo-drum" id="sorteo-drum" style="display:none"></div>
     <!-- Resultado ganador actual -->
     <div class="sorteo-winner-card" id="sorteo-winner-card" style="display:none"></div>
     <div class="sorteo-actions">
@@ -2023,12 +1639,10 @@ body { padding-bottom: 80px; }
 </div>
 
 <!-- PANTALLA FINAL — ambos ganadores -->
-<div class="sorteo-final-canvas" id="sorteo-final-canvas"></div>
 <div class="sorteo-final-bg" id="sorteo-final-bg">
   <div class="sorteo-final-box">
     <div class="sorteo-final-eyebrow">🎉 Resultados del sorteo</div>
     <div class="sorteo-final-heading">¡Tenemos ganadores!</div>
-    <div class="final-festive-msg" id="final-festive-msg">🎊 ¡Felicidades! 🎊</div>
     <div class="sorteo-final-sub">Rifa Solidaria — Silvio Guerrero</div>
     <div class="sorteo-final-card gold" id="final-card-1">
       <div class="sorteo-final-prize-row">
