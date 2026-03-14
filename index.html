@@ -1446,7 +1446,7 @@ body { padding-bottom: 80px; }
     sorteoRonda = 1; ganador1 = null;
     actualizarBannerPremio();
     const countEl = document.getElementById('sorteo-count');
-    countEl.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">🎟️ <strong>' + vendidos.length + '</strong> números en juego &middot; sorteo 100% aleatorio</span>';
+    countEl.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">🎟️ <strong>' + vendidos.length + '</strong> números en juego</span>';
     document.getElementById('sorteo-drum').textContent = '—';
     document.getElementById('sorteo-drum').style.color = 'var(--accent)';
     document.getElementById('sorteo-drum').style.transform = 'scale(1)';
@@ -1490,22 +1490,12 @@ body { padding-bottom: 80px; }
     nameEl.textContent = '';
     personajeEstado('sorteando');
 
-    // Pool según ronda
-    const vendedorExcluido = (sorteoRonda === 2 && ganador1 && ganador1.vendedor)
-      ? ganador1.vendedor.trim().toLowerCase() : null;
-    const pool = vendedorExcluido
-      ? vendidos.filter(n => (data[n]&&data[n].vendedor||'').trim().toLowerCase() !== vendedorExcluido)
+    // Pool según ronda: para el 2do sorteo excluir solo el número ganador del 1er premio
+    const numExcluido = (sorteoRonda === 2 && ganador1) ? ganador1.num : null;
+    const poolFinal = numExcluido
+      ? vendidos.filter(n => n !== numExcluido)
       : vendidos;
-    const poolFinal = pool.length > 0 ? pool : vendidos;
-
-    // Transparencia: mostrar cantidad exacta en el pool
-    if (sorteoRonda === 2) {
-      if (vendedorExcluido && pool.length === 0) {
-        countEl.innerHTML = '<span style="font-size:12px;color:#F59E0B">⚠️ Todos los números son del mismo vendedor — sorteando entre los ' + vendidos.length + '</span>';
-      } else {
-        countEl.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">🎟️ <strong>' + poolFinal.length + '</strong> números habilitados para el 2do sorteo</span>';
-      }
-    }
+    if (poolFinal.length === 0) return; // por si acaso
 
     // Sorteo en 4 fases:
     // 1. Giro rápido
@@ -1603,13 +1593,11 @@ body { padding-bottom: 80px; }
           nameWin.textContent = (dWinner && dWinner.nombre) || '—';
           card.appendChild(nameWin);
 
-          // Hash de transparencia
-          var seedInfo = document.createElement('div');
-          seedInfo.style.cssText = 'font-size:10px;color:var(--text-muted);margin-top:8px;padding:6px 8px;background:rgba(0,0,0,.04);border-radius:8px;font-family:monospace;word-break:break-all;';
-          var ts = Date.now();
-          var seed = ts + '-' + poolFinal.length + '-' + winner;
-          seedInfo.innerHTML = '🔒 Verificación: <strong>' + seed + '</strong><br><span style="color:#10B981">✓ Aleatorio garantizado (' + poolFinal.length + ' números)</span>';
-          card.appendChild(seedInfo);
+          // Cantidad de participantes (simple y claro)
+          var partInfo = document.createElement('div');
+          partInfo.style.cssText = 'font-size:12px;color:var(--text-muted);margin-top:8px;';
+          partInfo.textContent = '🎟️ Sorteado entre ' + poolFinal.length + ' número' + (poolFinal.length !== 1 ? 's' : '');
+          card.appendChild(partInfo);
           card.style.display = 'block';
 
           personajeEstado('celebrando');
@@ -1625,10 +1613,8 @@ body { padding-bottom: 80px; }
             document.getElementById('sorteo-prev-name').textContent = ganador1.nombre;
             document.getElementById('sorteo-prev-vend').textContent = '';
             document.getElementById('sorteo-prev-card').style.display = 'flex';
-            var vEx2 = ganador1.vendedor ? ganador1.vendedor.trim().toLowerCase() : null;
-            var pool2 = vEx2 ? vendidos.filter(function(n){ return ((data[n]&&data[n].vendedor)||'').trim().toLowerCase() !== vEx2; }) : vendidos;
-            var pool2F = pool2.length > 0 ? pool2 : vendidos;
-            countEl.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">🎟️ <strong>' + pool2F.length + '</strong> números habilitados para el 2do sorteo</span>';
+            var pool2Size = vendidos.length - 1; // todos menos el ganador del 1er premio
+            countEl.innerHTML = '<span style="font-size:12px;color:var(--text-muted)">🎟️ <strong>' + pool2Size + '</strong> números participan en el 2do sorteo</span>';
             btn.disabled = false;
             btn.textContent = '🎲 Sortear 2do Premio';
             btn.onclick = runSorteo;
